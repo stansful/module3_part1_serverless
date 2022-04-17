@@ -1,9 +1,5 @@
 import type { AWS } from '@serverless/typescript';
-import { examplesConfig } from './config/serverless/parts/examples';
-import { getMediaInfoConfig } from './config/serverless/parts/get-media-info';
-import { jobsConfig } from './config/serverless/parts/jobs';
 import { restApiCorsConfig } from './config/serverless/parts/rest-api-cors';
-import { usersConfig } from './config/serverless/parts/users';
 import { joinParts } from './config/serverless/utils';
 
 const CLIENT = '${file(./env.yml):${self:provider.stage}.CLIENT}';
@@ -49,10 +45,6 @@ const masterConfig: AWS = {
       bundle: true,
       minify: true,
       metafile: false,
-      // If you want to debug the output than turn this on.
-      // In other cases keep it off because serverless-esbuild
-      // dont update extra files if they already exists in .esbuild folder.
-      // Extra files are files that you define in package.patterns settings.
       keepOutputDirectory: false,
       packager: 'npm',
       inject: ['loadenv.ts'],
@@ -67,77 +59,22 @@ const masterConfig: AWS = {
     },
     envFiles: ['env.yml'],
     envEncryptionKeyId: {
-      // local: '${file(./kms_key.yml):local}',
-      // dev: '${file(./kms_key.yml):dev}',
-      // test: '${file(./kms_key.yml):test}',
-      // prod: '${file(./kms_key.yml):prod}',
+      local: '${file(./kms_key.yml):local}',
+      dev: '${file(./kms_key.yml):dev}',
+      test: '${file(./kms_key.yml):test}',
+      prod: '${file(./kms_key.yml):prod}',
     },
     'serverless-offline': {
       ignoreJWTSignature: true,
     },
-    // s3: {
-    //   host: '0.0.0.0',
-    //   port: 8001,
-    //   directory: '/tmp',
-    // },
-    // capacities: [
-    //   {
-    //     table: 'UsersTable',
-    //     read: {
-    //       minimum: 5,
-    //       maximum: 100,
-    //       usage: 0.75,
-    //     },
-    //     write: {
-    //       minimum: 5,
-    //       maximum: 100,
-    //       usage: 0.75,
-    //     },
-    //   },
-    //   {
-    //     table: 'JobsTable',
-    //     index: ['ProducerIdGlobalIndex', 'CrewIdGlobalIndex'],
-    //     read: {
-    //       minimum: 5,
-    //       maximum: 100,
-    //       usage: 0.75,
-    //     },
-    //     write: {
-    //       minimum: 5,
-    //       maximum: 100,
-    //       usage: 0.75,
-    //     },
-    //   },
-    // ],
-    // 'serverless-offline-sns': {
-    //   port: 4002,
-    //   debug: false,
-    // },
-    // 'serverless-offline-sqs': {
-    //   autoCreate: true,
-    //   apiVersion: '2012-11-05',
-    //   endpoint: 'http://0.0.0.0:9324',
-    //   region: '${file(./env.yml):${self:provider.stage}.REGION}',
-    //   accessKeyId: 'root',
-    //   secretAccessKey: 'root',
-    //   skipCacheInvalidation: false,
-    // },
   },
   plugins: [
     '@redtea/serverless-env-generator',
     'serverless-esbuild',
     'serverless-offline-sqs',
     'serverless-offline',
-    // 'serverless-offline-sns',
-    // 'serverless-s3-local',
     'serverless-prune-plugin',
   ],
 };
 
-module.exports = joinParts(masterConfig, [
-  restApiCorsConfig,
-  getMediaInfoConfig,
-  jobsConfig,
-  usersConfig,
-  examplesConfig,
-]);
+module.exports = joinParts(masterConfig, [restApiCorsConfig]);
