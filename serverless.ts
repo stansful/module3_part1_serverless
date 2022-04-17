@@ -1,4 +1,5 @@
 import type { AWS } from '@serverless/typescript';
+import { galleryConfig } from './config/serverless/parts/gallery';
 import { restApiCorsConfig } from './config/serverless/parts/rest-api-cors';
 import { joinParts } from './config/serverless/utils';
 
@@ -60,9 +61,9 @@ const masterConfig: AWS = {
     envFiles: ['env.yml'],
     envEncryptionKeyId: {
       local: '${file(./kms_key.yml):local}',
-      dev: '${file(./kms_key.yml):dev}',
-      test: '${file(./kms_key.yml):test}',
-      prod: '${file(./kms_key.yml):prod}',
+      // dev: '${file(./kms_key.yml):dev}',
+      // test: '${file(./kms_key.yml):test}',
+      // prod: '${file(./kms_key.yml):prod}',
     },
     'serverless-offline': {
       ignoreJWTSignature: true,
@@ -77,4 +78,4 @@ const masterConfig: AWS = {
   ],
 };
 
-module.exports = joinParts(masterConfig, [restApiCorsConfig]);
+module.exports = joinParts(masterConfig, [restApiCorsConfig, galleryConfig]);
