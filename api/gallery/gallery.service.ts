@@ -55,7 +55,7 @@ export class GalleryService {
     }
   }
 
-  public async uploadExistingPictures(): Promise<void> {
+  public async uploadExistingPictures() {
     try {
       const pictures = await fs.readdir(this.picturesPath);
       const picturesInfo = pictures.map((pictureName): PicturePaths => {
@@ -73,6 +73,8 @@ export class GalleryService {
           return this.imageService.create({ path: pictureInfo.fsRelativePath, metadata: data, belongsTo: null });
         })
       );
+
+      return { message: 'Pictures uploaded' };
     } catch (error) {
       throw new HttpBadRequestError('Images already exist');
     }

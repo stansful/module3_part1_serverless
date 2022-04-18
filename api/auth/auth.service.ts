@@ -47,7 +47,9 @@ export class AuthService {
     try {
       await this.mongoDB.connect();
 
-      return await this.userService.create(candidate);
+      await this.userService.create(candidate);
+
+      return { message: 'Created' };
     } catch (error) {
       throw new HttpBadRequestError('Email already exist');
     }
@@ -76,6 +78,8 @@ export class AuthService {
           return this.userService.create(devUser);
         })
       );
+
+      return { message: 'Dev users uploaded' };
     } catch (error) {
       throw new HttpBadRequestError('Dev users already exist');
     }

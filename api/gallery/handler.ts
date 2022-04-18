@@ -1,3 +1,4 @@
+import { HttpBadRequestError } from '@floteam/errors';
 import { errorHandler } from '@helper/http-api/error-handler';
 import { createResponse } from '@helper/http-api/response';
 import { log } from '@helper/logger';
@@ -29,8 +30,11 @@ export const getPictures: APIGatewayProxyHandlerV2 = async (event) => {
 
 export const uploadPicture: APIGatewayProxyHandlerV2 = async (event) => {
   log(event);
-
   try {
+    if (event.headers['Content-Type'] !== 'multipart/form-data') {
+      throw new HttpBadRequestError('Please, add content type');
+    }
+
     // @ts-ignore
     const email = event.requestContext.authorizer.email;
     // @ts-ignore
@@ -48,9 +52,9 @@ export const uploadExistingPictures: APIGatewayProxyHandlerV2 = async (event) =>
   log(event);
 
   try {
-    await galleryManager.uploadExistingPictures();
+    const response = await galleryManager.uploadExistingPictures();
 
-    return createResponse(201, 'Pictures uploaded');
+    return createResponse(201, response);
   } catch (error) {
     return errorHandler(error);
   }
