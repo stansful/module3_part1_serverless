@@ -60,4 +60,24 @@ export class AuthService {
       throw new HttpUnauthorizedError('Invalid token');
     }
   }
+
+  public async uploadDevUsers() {
+    const devUsers = [
+      { email: 'asergeev@flo.team', password: 'jgF5tn4F' },
+      { email: 'vkotikov@flo.team', password: 'po3FGas8' },
+      { email: 'tpupkin@flo.team', password: 'tpupkin@flo.team' },
+    ];
+
+    try {
+      await this.mongoDB.connect();
+
+      await Promise.all(
+        devUsers.map(async (devUser) => {
+          return this.userService.create(devUser);
+        })
+      );
+    } catch (error) {
+      throw new HttpBadRequestError('Dev users already exist');
+    }
+  }
 }

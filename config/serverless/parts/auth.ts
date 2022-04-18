@@ -26,5 +26,17 @@ export const authConfig: AWSPartitial = {
         },
       ],
     },
+    apiUploadDevUsers: {
+      handler: 'api/auth/handler.uploadDevUsers',
+      memorySize: 128,
+      events: [
+        {
+          httpApi: {
+            path: '/auth/fill',
+            method: 'get',
+          },
+        },
+      ],
+    },
   },
 };
