@@ -10,7 +10,7 @@ export class UserService {
     return user;
   }
 
-  public async create(candidate: User): Promise<User> {
+  public async create(candidate: Omit<User, '_id'>): Promise<User> {
     try {
       await this.getByEmail(candidate.email);
     } catch (error) {
