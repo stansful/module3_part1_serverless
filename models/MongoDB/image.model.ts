@@ -1,4 +1,4 @@
-import { Schema, model, models } from 'mongoose';
+import { Schema, model, models, Model } from 'mongoose';
 import { ExifData } from 'ts-exif-parser';
 
 export interface Image {
@@ -13,4 +13,4 @@ const imageSchema = new Schema<Image>({
   belongsTo: { type: Schema.Types.ObjectId || null, ref: 'User' },
 });
 
-export const imageModel = models.Image || model<Image>('Image', imageSchema);
+export const imageModel = (models.Image as Model<Image>) || model<Image>('Image', imageSchema);

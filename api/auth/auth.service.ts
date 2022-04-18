@@ -52,4 +52,12 @@ export class AuthService {
       throw new HttpBadRequestError('Email already exist');
     }
   }
+
+  public async authenticate(token: string) {
+    try {
+      return this.tokenService.verify<JwtPayload>(token);
+    } catch (error) {
+      throw new HttpUnauthorizedError('Invalid token');
+    }
+  }
 }

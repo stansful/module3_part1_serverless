@@ -1,4 +1,8 @@
-import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
+import {
+  APIGatewayAuthorizerResult,
+  APIGatewayProxyHandlerV2,
+  APIGatewayTokenAuthorizerWithContextHandler,
+} from 'aws-lambda';
 import { errorHandler } from '@helper/http-api/error-handler';
 import { createResponse } from '@helper/http-api/response';
 import { log } from '@helper/logger';
@@ -29,3 +33,39 @@ export const signUp: APIGatewayProxyHandlerV2 = async (event) => {
     return errorHandler(error);
   }
 };
+
+export const authenticate: APIGatewayTokenAuthorizerWithContextHandler<Record<string, any>> = async (event) => {
+  log(event, '\n\n auth event! \n\n');
+
+  try {
+    const candidate = await authManager.authenticate(event.authorizationToken);
+
+    return generatePolicy('user', 'Allow', '*', { email: candidate.email });
+  } catch (error) {
+    return generatePolicy('user', 'Deny', '*', {});
+  }
+};
+
+export function generatePolicy<C extends APIGatewayAuthorizerResult['context']>(
+  principalId: string,
+  effect: 'Allow' | 'Deny',
+  resource: string,
+  context: C
+): APIGatewayAuthorizerResult & { context: C } {
+  const authResponse: APIGatewayAuthorizerResult & { context: C } = {
+    principalId,
+    policyDocument: {
+      Version: '2012-10-17',
+      Statement: [
+        {
+          Action: 'execute-api:Invoke',
+          Effect: effect,
+          Resource: resource,
+        },
+      ],
+    },
+    context,
+  };
+
+  return authResponse;
+}

@@ -7,7 +7,7 @@ export class TokenService {
     return jwt.sign(data, this.secretToken, options);
   }
 
-  public async verify<T>(token: string, options?: jwt.VerifyOptions): Promise<T> {
+  public async verify<Payload>(token: string, options?: jwt.VerifyOptions): Promise<Payload> {
     return jwt.verify(token, this.secretToken, options);
   }
 }

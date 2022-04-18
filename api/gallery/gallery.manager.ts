@@ -10,7 +10,7 @@ export class GalleryManager {
     this.galleryService = new GalleryService();
   }
 
-  public getPictures(query: GalleryQueryParams) {
+  public getPictures(query: GalleryQueryParams, email: string) {
     const requestPage = Number(query.page) || 1;
 
     if (requestPage < 1) {
@@ -21,10 +21,10 @@ export class GalleryManager {
     const skip = requestPage * limit - limit;
     const uploadedByUser = query.filter === 'true';
 
-    return this.galleryService.getPictures(limit, skip, uploadedByUser);
+    return this.galleryService.getPictures({ limit, skip, uploadedByUser }, email);
   }
 
-  public uploadPictures(pictures: MultipartRequest) {
+  public uploadPictures(pictures: MultipartRequest, email: string) {
     if (!pictures.files.length) {
       throw new HttpBadRequestError('File missing');
     }
@@ -35,6 +35,6 @@ export class GalleryManager {
       throw new HttpBadRequestError('Unfortunately we support only jpeg');
     }
 
-    return this.galleryService.uploadPicture(picture);
+    return this.galleryService.uploadPicture(picture, email);
   }
 }

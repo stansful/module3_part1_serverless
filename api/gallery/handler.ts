@@ -17,8 +17,9 @@ export const getPictures: APIGatewayProxyHandlerV2 = async (event) => {
       limit: event.queryStringParameters?.limit,
       filter: event.queryStringParameters?.filter,
     };
-
-    const pictures = await galleryManager.getPictures(query);
+    // @ts-ignore
+    const email = event.requestContext.authorizer.email;
+    const pictures = await galleryManager.getPictures(query, email);
 
     return createResponse(200, pictures);
   } catch (error) {
@@ -31,8 +32,11 @@ export const uploadPictures: APIGatewayProxyHandlerV2 = async (event) => {
 
   try {
     // @ts-ignore
+    const email = event.requestContext.authorizer.email;
+    // @ts-ignore
     const pictures = await multipartParser.parse(event);
-    await galleryManager.uploadPictures(pictures);
+
+    await galleryManager.uploadPictures(pictures, email);
 
     return createResponse(201, 'Picture uploaded');
   } catch (error) {

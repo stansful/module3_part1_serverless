@@ -6,6 +6,10 @@ export class ImageService {
     return imageModel.find({ belongsTo: null }, null, options);
   }
 
+  async getByUserId(id: mongoose.Schema.Types.ObjectId, options?: mongoose.QueryOptions): Promise<Image[]> {
+    return imageModel.find({ belongsTo: id }, null, options);
+  }
+
   async getByFileName(fileName: string): Promise<Image> {
     const image = await imageModel.findOne({ path: fileName });
 
