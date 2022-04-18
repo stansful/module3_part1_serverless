@@ -3,3 +3,8 @@ export interface GalleryQueryParams {
   limit?: string;
   filter?: string;
 }
+
+export interface PicturePaths {
+  fsRelativePath: string;
+  fsAbsolutePath: string;
+}

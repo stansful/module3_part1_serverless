@@ -28,7 +28,7 @@ export const galleryConfig: AWSPartitial = {
       ],
     },
     apiGalleryUploadPicture: {
-      handler: 'api/gallery/handler.uploadPictures',
+      handler: 'api/gallery/handler.uploadPicture',
       memorySize: 128,
       events: [
         {
@@ -36,6 +36,18 @@ export const galleryConfig: AWSPartitial = {
             path: '/gallery',
             method: 'post',
             authorizer: { name: 'jwtAuthorizer' },
+          },
+        },
+      ],
+    },
+    apiParseAndUploadExistingPictures: {
+      handler: 'api/gallery/handler.uploadExistingPictures',
+      memorySize: 128,
+      events: [
+        {
+          httpApi: {
+            path: '/gallery/fill',
+            method: 'get',
           },
         },
       ],

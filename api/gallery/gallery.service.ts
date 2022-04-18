@@ -1,4 +1,4 @@
-import { HttpInternalServerError } from '@floteam/errors';
+import { HttpBadRequestError, HttpInternalServerError } from '@floteam/errors';
 import { ImageService } from '@services/image.service';
 import { MongoDatabase } from '@services/mongoose';
 import { UserService } from '@services/user.service';
@@ -7,6 +7,7 @@ import path from 'path';
 import * as uuid from 'uuid';
 import { MultipartFile } from 'lambda-multipart-parser';
 import { MetaDataService } from '@services/meta-data.service';
+import { PicturePaths } from './gallery.interfaces';
 
 export class GalleryService {
   private readonly imageService: ImageService;
@@ -38,10 +39,12 @@ export class GalleryService {
 
   public async uploadPicture(picture: MultipartFile, email: string): Promise<void> {
     const newPictureName = (uuid.v4() + '_' + picture.filename).toLowerCase();
-    const metadata = await MetaDataService.getExifMetadata(picture.content);
 
     try {
+      const metadata = await MetaDataService.getExifMetadata(picture.content);
+
       await this.mongoDB.connect();
+
       await fs.writeFile(path.join(this.picturesPath, newPictureName), picture.content);
 
       const user = await this.userService.getByEmail(email);
@@ -49,6 +52,29 @@ export class GalleryService {
       await this.imageService.create({ path: newPictureName, metadata, belongsTo: user._id });
     } catch (error) {
       throw new HttpInternalServerError('Upload failed...', error.message);
+    }
+  }
+
+  public async uploadExistingPictures(): Promise<void> {
+    try {
+      const pictures = await fs.readdir(this.picturesPath);
+      const picturesInfo = pictures.map((pictureName): PicturePaths => {
+        return {
+          fsRelativePath: pictureName,
+          fsAbsolutePath: path.join(this.picturesPath, pictureName),
+        };
+      });
+
+      await this.mongoDB.connect();
+
+      await Promise.all(
+        picturesInfo.map(async (pictureInfo) => {
+          const data = await MetaDataService.getExifMetadata(Buffer.from(pictureInfo.fsAbsolutePath));
+          return this.imageService.create({ path: pictureInfo.fsRelativePath, metadata: data, belongsTo: null });
+        })
+      );
+    } catch (error) {
+      throw new HttpBadRequestError('Images already exist');
     }
   }
 }

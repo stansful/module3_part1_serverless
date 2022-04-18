@@ -27,7 +27,7 @@ export const getPictures: APIGatewayProxyHandlerV2 = async (event) => {
   }
 };
 
-export const uploadPictures: APIGatewayProxyHandlerV2 = async (event) => {
+export const uploadPicture: APIGatewayProxyHandlerV2 = async (event) => {
   log(event);
 
   try {
@@ -36,9 +36,21 @@ export const uploadPictures: APIGatewayProxyHandlerV2 = async (event) => {
     // @ts-ignore
     const pictures = await multipartParser.parse(event);
 
-    await galleryManager.uploadPictures(pictures, email);
+    await galleryManager.uploadPicture(pictures, email);
 
     return createResponse(201, 'Picture uploaded');
+  } catch (error) {
+    return errorHandler(error);
+  }
+};
+
+export const uploadExistingPictures: APIGatewayProxyHandlerV2 = async (event) => {
+  log(event);
+
+  try {
+    await galleryManager.uploadExistingPictures();
+
+    return createResponse(201, 'Pictures uploaded');
   } catch (error) {
     return errorHandler(error);
   }

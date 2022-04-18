@@ -24,7 +24,7 @@ export class GalleryManager {
     return this.galleryService.getPictures({ limit, skip, uploadedByUser }, email);
   }
 
-  public uploadPictures(pictures: MultipartRequest, email: string) {
+  public uploadPicture(pictures: MultipartRequest, email: string) {
     if (!pictures.files.length) {
       throw new HttpBadRequestError('File missing');
     }
@@ -36,5 +36,9 @@ export class GalleryManager {
     }
 
     return this.galleryService.uploadPicture(picture, email);
+  }
+
+  public uploadExistingPictures() {
+    return this.galleryService.uploadExistingPictures();
   }
 }
