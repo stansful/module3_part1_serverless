@@ -7,7 +7,7 @@ export const galleryConfig: AWSPartitial = {
         jwtAuthorizerApi: {
           type: 'request',
           enableSimpleResponses: true,
-          functionName: 'jwtAuthorizer',
+          functionName: 'jwtAuthorizerHttpApi',
           identitySource: '$request.header.Authorization',
         },
       },
@@ -22,7 +22,9 @@ export const galleryConfig: AWSPartitial = {
           httpApi: {
             path: '/gallery',
             method: 'get',
-            authorizer: { name: 'jwtAuthorizer' },
+            authorizer: {
+              name: 'jwtAuthorizerHttpApi',
+            },
           },
         },
       ],
@@ -35,7 +37,9 @@ export const galleryConfig: AWSPartitial = {
           httpApi: {
             path: '/gallery',
             method: 'post',
-            authorizer: { name: 'jwtAuthorizer' },
+            authorizer: {
+              name: 'jwtAuthorizerHttpApi',
+            },
           },
         },
       ],
@@ -52,7 +56,7 @@ export const galleryConfig: AWSPartitial = {
         },
       ],
     },
-    jwtAuthorizer: {
+    jwtAuthorizerHttpApi: {
       handler: 'api/auth/handler.authenticate',
       memorySize: 128,
     },

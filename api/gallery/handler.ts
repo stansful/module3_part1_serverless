@@ -1,4 +1,3 @@
-import { HttpBadRequestError } from '@floteam/errors';
 import { errorHandler } from '@helper/http-api/error-handler';
 import { createResponse } from '@helper/http-api/response';
 import { log } from '@helper/logger';
@@ -31,10 +30,6 @@ export const getPictures: APIGatewayProxyHandlerV2 = async (event) => {
 export const uploadPicture: APIGatewayProxyHandlerV2 = async (event) => {
   log(event);
   try {
-    if (event.headers['Content-Type'] !== 'multipart/form-data') {
-      throw new HttpBadRequestError('Please, add content type');
-    }
-
     // @ts-ignore
     const email = event.requestContext.authorizer.email;
     // @ts-ignore
@@ -44,6 +39,10 @@ export const uploadPicture: APIGatewayProxyHandlerV2 = async (event) => {
 
     return createResponse(201, response);
   } catch (error) {
+    if (error.message === 'Missing Content-Type') {
+      return createResponse(400, { message: 'Please, provide content type' });
+    }
+
     return errorHandler(error);
   }
 };
