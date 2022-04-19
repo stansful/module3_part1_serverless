@@ -16,13 +16,13 @@ npm install
 local: kms-super-secret-key
 ```
 
-4. Deploy local
+3. Deploy local
 
 ```
 npm run deploy:local:auth
 ```
 
-5. Send 2 requests using postman, to create dev user and image entities
+4. Send 2 get requests using postman, to create dev user and image entities
 
 ```
 http://localhost:XXXX/auth/fill
