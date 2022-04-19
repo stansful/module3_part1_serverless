@@ -169,7 +169,6 @@ paths:
                   page:
                     type: number
                     example: 3
-
         '403':
           description: Forbidden
           content:
@@ -180,6 +179,20 @@ paths:
                   status:
                     type: number
                     example: 400
+                  error:
+                    type: string
+                  message:
+                    type: string
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 500
                   error:
                     type: string
                   message:
@@ -225,6 +238,21 @@ paths:
                     example: 400
                   message:
                     type: string
+        '500':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 500
+                  error:
+                    type: string
+                  message:
+                    type: string
+
   /gallery/fill:
     get:
       tags:

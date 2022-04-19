@@ -72,7 +72,8 @@ export class GalleryService {
 
       await Promise.all(
         picturesInfo.map(async (pictureInfo) => {
-          const data = await MetaDataService.getExifMetadata(Buffer.from(pictureInfo.fsAbsolutePath));
+          const pictureBuffer = await fs.readFile(pictureInfo.fsAbsolutePath);
+          const data = await MetaDataService.getExifMetadata(pictureBuffer);
           return this.imageService.create({ path: pictureInfo.fsRelativePath, metadata: data, belongsTo: null });
         })
       );
