@@ -23,22 +23,20 @@ export class GalleryService {
     this.mongoDB = new MongoDatabase();
   }
 
-  private parseQueryParam(defaultValue: number, num?: string) {
-    let result;
-
-    if (num) {
-      const isInfinity = !isFinite(parseInt(num));
-
-      if (isInfinity) throw new HttpBadRequestError('I thought we were friends... Dont do this =(');
-
-      result = parseInt(num);
-    } else {
-      result = this.pictureLimit;
+  private parseQueryParam(defaultValue: number, num?: string): number {
+    if (!num) {
+      return defaultValue;
     }
+
+    const result = parseInt(num);
+
+    const isInfinity = !isFinite(result);
+
+    if (isInfinity) throw new HttpBadRequestError('I thought we were friends... Dont do this =(');
 
     if (result < 1) throw new HttpBadRequestError('Query params value must be more than zero');
 
-    return result || defaultValue;
+    return result;
   }
 
   public validateAndSanitizeQuery(query: RequestGalleryQueryParams): SanitizedQueryParams {
