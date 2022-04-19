@@ -32,6 +32,7 @@ export class GalleryService {
         const user = await this.userService.getByEmail(email);
         return this.imageService.getByUserId(user._id, { skip, limit });
       }
+
       return this.imageService.getAll({ skip, limit });
     } catch (error) {
       throw new HttpInternalServerError('Cant send pictures...', error.message);
@@ -80,7 +81,7 @@ export class GalleryService {
 
       return { message: 'Pictures uploaded' };
     } catch (error) {
-      throw new HttpBadRequestError('Images already exist');
+      throw new HttpBadRequestError('Pictures already exist');
     }
   }
 }
