@@ -1,6 +1,6 @@
 import { HttpBadRequestError } from '@floteam/errors';
 import { MultipartRequest } from 'lambda-multipart-parser';
-import { GalleryQueryParams } from './gallery.interfaces';
+import { RequestGalleryQueryParams } from './gallery.interfaces';
 import { GalleryService } from './gallery.service';
 
 export class GalleryManager {
@@ -10,18 +10,9 @@ export class GalleryManager {
     this.galleryService = new GalleryService();
   }
 
-  public getPictures(query: GalleryQueryParams, email: string) {
-    const requestPage = Number(query.page) || 1;
-
-    if (requestPage < 1) {
-      throw new HttpBadRequestError('Page does not exist');
-    }
-
-    const limit = Number(query.limit) || Number(process.env.DEFAULT_PICTURE_LIMIT) || 6;
-    const skip = requestPage * limit - limit;
-    const uploadedByUser = query.filter === 'true';
-
-    return this.galleryService.getPictures({ limit, skip, uploadedByUser }, email);
+  public getPictures(query: RequestGalleryQueryParams, email: string) {
+    const sanitizedQuery = this.galleryService.validateAndSanitizeQuery(query);
+    return this.galleryService.getPictures(sanitizedQuery, email);
   }
 
   public uploadPicture(pictures: MultipartRequest, email: string) {

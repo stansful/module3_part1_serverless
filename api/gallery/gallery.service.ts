@@ -8,13 +8,14 @@ import path from 'path';
 import * as uuid from 'uuid';
 import { MultipartFile } from 'lambda-multipart-parser';
 import { MetaDataService } from '@services/meta-data.service';
-import { PicturePaths } from './gallery.interfaces';
+import { RequestGalleryQueryParams, PicturePaths, SanitizedQueryParams } from './gallery.interfaces';
 
 export class GalleryService {
   private readonly imageService: ImageService;
   private readonly userService: UserService;
   private readonly mongoDB: MongoDatabase;
   private readonly picturesPath = path.resolve(__dirname, '..', '..', '..', '..', 'static', 'pictures');
+  private readonly pictureLimit = Number(process.env.DEFAULT_PICTURE_LIMIT) || 6;
 
   constructor() {
     this.imageService = new ImageService();
@@ -22,7 +23,35 @@ export class GalleryService {
     this.mongoDB = new MongoDatabase();
   }
 
-  public async getPictures(query: { limit: number; skip: number; uploadedByUser: boolean }, email: string) {
+  private parseQueryParam(defaultValue: number, num?: string) {
+    let result;
+
+    if (num) {
+      const isInfinity = !isFinite(parseInt(num));
+
+      if (isInfinity) throw new HttpBadRequestError('I thought we were friends... Dont do this =(');
+
+      result = parseInt(num);
+    } else {
+      result = this.pictureLimit;
+    }
+
+    if (result < 1) throw new HttpBadRequestError('Query params value must be more than zero');
+
+    return result || defaultValue;
+  }
+
+  public validateAndSanitizeQuery(query: RequestGalleryQueryParams): SanitizedQueryParams {
+    const requestPage = this.parseQueryParam(1, query.page);
+    const limit = this.parseQueryParam(this.pictureLimit, query.limit);
+
+    const skip = requestPage * limit - limit;
+    const uploadedByUser = query.filter === 'true';
+
+    return { limit, skip, uploadedByUser };
+  }
+
+  public async getPictures(query: SanitizedQueryParams, email: string) {
     const { uploadedByUser, skip, limit } = query;
 
     try {
