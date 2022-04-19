@@ -1,4 +1,5 @@
 import { HttpBadRequestError, HttpUnauthorizedError } from '@floteam/errors';
+import { ResponseMessage } from '@interfaces/response-message.interface';
 import { HashingService } from '@services/hashing.service';
 import { MongoDatabase } from '@services/mongoose';
 import { TokenService } from '@services/token.service';
@@ -43,7 +44,7 @@ export class AuthService {
     }
   }
 
-  public async signUp(candidate: RequestUser) {
+  public async signUp(candidate: RequestUser): Promise<ResponseMessage> {
     try {
       await this.mongoDB.connect();
 
@@ -63,7 +64,7 @@ export class AuthService {
     }
   }
 
-  public async uploadDevUsers() {
+  public async uploadDevUsers(): Promise<ResponseMessage> {
     const devUsers = [
       { email: 'asergeev@flo.team', password: 'jgF5tn4F' },
       { email: 'vkotikov@flo.team', password: 'po3FGas8' },

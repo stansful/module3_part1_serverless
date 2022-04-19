@@ -1,4 +1,5 @@
 import { HttpBadRequestError, HttpInternalServerError } from '@floteam/errors';
+import { ResponseMessage } from '@interfaces/response-message.interface';
 import { ImageService } from '@services/image.service';
 import { MongoDatabase } from '@services/mongoose';
 import { UserService } from '@services/user.service';
@@ -37,7 +38,7 @@ export class GalleryService {
     }
   }
 
-  public async uploadPicture(picture: MultipartFile, email: string): Promise<void> {
+  public async uploadPicture(picture: MultipartFile, email: string): Promise<ResponseMessage> {
     const newPictureName = (uuid.v4() + '_' + picture.filename).toLowerCase();
 
     try {
@@ -50,12 +51,14 @@ export class GalleryService {
       const user = await this.userService.getByEmail(email);
 
       await this.imageService.create({ path: newPictureName, metadata, belongsTo: user._id });
+
+      return { message: 'Picture uploaded' };
     } catch (error) {
       throw new HttpInternalServerError('Upload failed...', error.message);
     }
   }
 
-  public async uploadExistingPictures() {
+  public async uploadExistingPictures(): Promise<ResponseMessage> {
     try {
       const pictures = await fs.readdir(this.picturesPath);
       const picturesInfo = pictures.map((pictureName): PicturePaths => {

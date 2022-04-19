@@ -40,9 +40,9 @@ export const uploadPicture: APIGatewayProxyHandlerV2 = async (event) => {
     // @ts-ignore
     const pictures = await multipartParser.parse(event);
 
-    await galleryManager.uploadPicture(pictures, email);
+    const response = await galleryManager.uploadPicture(pictures, email);
 
-    return createResponse(201, 'Picture uploaded');
+    return createResponse(201, response);
   } catch (error) {
     return errorHandler(error);
   }
