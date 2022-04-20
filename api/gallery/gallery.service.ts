@@ -11,7 +11,7 @@ import { MetaDataService } from '@services/meta-data.service';
 import { RequestGalleryQueryParams, PicturePaths, SanitizedQueryParams } from './gallery.interfaces';
 
 const mongoDB = new MongoDatabase();
-mongoDB.connect();
+const connect = mongoDB.connect();
 
 export class GalleryService {
   private readonly imageService: ImageService;
@@ -54,6 +54,8 @@ export class GalleryService {
     const { uploadedByUser, skip, limit } = query;
 
     try {
+      await connect;
+
       if (uploadedByUser) {
         const user = await this.userService.getByEmail(email);
         return this.imageService.getByUserId(user._id, { skip, limit });
@@ -69,6 +71,8 @@ export class GalleryService {
     const newPictureName = (uuid.v4() + '_' + picture.filename).toLowerCase();
 
     try {
+      await connect;
+
       const metadata = await MetaDataService.getExifMetadata(picture.content);
 
       await fs.writeFile(path.join(this.picturesPath, newPictureName), picture.content);
@@ -92,6 +96,8 @@ export class GalleryService {
           fsAbsolutePath: path.join(this.picturesPath, pictureName),
         };
       });
+
+      await connect;
 
       await Promise.all(
         picturesInfo.map(async (pictureInfo) => {

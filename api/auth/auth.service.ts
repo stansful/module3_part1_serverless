@@ -7,7 +7,7 @@ import { UserService } from '@services/user.service';
 import { JwtPayload, RequestUser } from './auth.interfaces';
 
 const mongoDB = new MongoDatabase();
-mongoDB.connect();
+const connect = mongoDB.connect();
 
 export class AuthService {
   private readonly hashingService: HashingService;
@@ -33,6 +33,8 @@ export class AuthService {
 
   public async signIn(candidate: RequestUser): Promise<JwtPayload> {
     try {
+      await connect;
+
       const user = await this.userService.getByEmail(candidate.email);
 
       await this.hashingService.verify(candidate.password, user.password);
@@ -45,6 +47,8 @@ export class AuthService {
 
   public async signUp(candidate: RequestUser): Promise<ResponseMessage> {
     try {
+      await connect;
+
       await this.userService.create(candidate);
 
       return { message: 'Created' };
@@ -55,6 +59,8 @@ export class AuthService {
 
   public async authenticate(token: string) {
     try {
+      await connect;
+
       return this.tokenService.verify<JwtPayload>(token);
     } catch (error) {
       throw new HttpUnauthorizedError('Invalid token');
@@ -69,6 +75,8 @@ export class AuthService {
     ];
 
     try {
+      await connect;
+
       await Promise.all(
         devUsers.map(async (devUser) => {
           return this.userService.create(devUser);

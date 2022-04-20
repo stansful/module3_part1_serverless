@@ -8,10 +8,12 @@ import multipartParser from 'lambda-multipart-parser';
 
 const galleryManager = new GalleryManager();
 
-export const getPictures: APIGatewayProxyHandlerV2 = async (event) => {
+export const getPictures: APIGatewayProxyHandlerV2 = async (event, context) => {
   log(event);
 
   try {
+    context.callbackWaitsForEmptyEventLoop = false;
+
     const query: RequestGalleryQueryParams = {
       page: event.queryStringParameters?.page,
       limit: event.queryStringParameters?.limit,
@@ -27,9 +29,11 @@ export const getPictures: APIGatewayProxyHandlerV2 = async (event) => {
   }
 };
 
-export const uploadPicture: APIGatewayProxyHandlerV2 = async (event) => {
+export const uploadPicture: APIGatewayProxyHandlerV2 = async (event, context) => {
   log(event);
   try {
+    context.callbackWaitsForEmptyEventLoop = false;
+
     // @ts-ignore
     const email = event.requestContext.authorizer.email;
     // @ts-ignore
@@ -47,10 +51,12 @@ export const uploadPicture: APIGatewayProxyHandlerV2 = async (event) => {
   }
 };
 
-export const uploadExistingPictures: APIGatewayProxyHandlerV2 = async (event) => {
+export const uploadExistingPictures: APIGatewayProxyHandlerV2 = async (event, context) => {
   log(event);
 
   try {
+    context.callbackWaitsForEmptyEventLoop = false;
+
     const response = await galleryManager.uploadExistingPictures();
 
     return createResponse(201, response);

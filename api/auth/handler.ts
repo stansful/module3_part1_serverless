@@ -10,10 +10,12 @@ import { AuthManager } from './auth.manager';
 
 const authManager = new AuthManager();
 
-export const signIn: APIGatewayProxyHandlerV2 = async (event) => {
+export const signIn: APIGatewayProxyHandlerV2 = async (event, context) => {
   log(event);
 
   try {
+    context.callbackWaitsForEmptyEventLoop = false;
+
     const token = await authManager.signIn(event.body);
 
     return createResponse(200, { token });
@@ -22,10 +24,12 @@ export const signIn: APIGatewayProxyHandlerV2 = async (event) => {
   }
 };
 
-export const signUp: APIGatewayProxyHandlerV2 = async (event) => {
+export const signUp: APIGatewayProxyHandlerV2 = async (event, context) => {
   log(event);
 
   try {
+    context.callbackWaitsForEmptyEventLoop = false;
+
     const response = await authManager.signUp(event.body);
 
     return createResponse(201, response);
@@ -34,10 +38,12 @@ export const signUp: APIGatewayProxyHandlerV2 = async (event) => {
   }
 };
 
-export const uploadDevUsers: APIGatewayProxyHandlerV2 = async (event) => {
+export const uploadDevUsers: APIGatewayProxyHandlerV2 = async (event, context) => {
   log(event);
 
   try {
+    context.callbackWaitsForEmptyEventLoop = false;
+
     const response = await authManager.uploadDevUsers();
 
     return createResponse(201, response);
@@ -46,10 +52,15 @@ export const uploadDevUsers: APIGatewayProxyHandlerV2 = async (event) => {
   }
 };
 
-export const authenticate: APIGatewayTokenAuthorizerWithContextHandler<Record<string, any>> = async (event) => {
+export const authenticate: APIGatewayTokenAuthorizerWithContextHandler<Record<string, any>> = async (
+  event,
+  context
+) => {
   log(event);
 
   try {
+    context.callbackWaitsForEmptyEventLoop = false;
+
     const candidate = await authManager.authenticate(event.authorizationToken);
 
     return generatePolicy('user', 'Allow', '*', { email: candidate.email });
