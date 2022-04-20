@@ -10,17 +10,18 @@ import { MultipartFile } from 'lambda-multipart-parser';
 import { MetaDataService } from '@services/meta-data.service';
 import { RequestGalleryQueryParams, PicturePaths, SanitizedQueryParams } from './gallery.interfaces';
 
+const mongoDB = new MongoDatabase();
+mongoDB.connect();
+
 export class GalleryService {
   private readonly imageService: ImageService;
   private readonly userService: UserService;
-  private readonly mongoDB: MongoDatabase;
   private readonly picturesPath = path.resolve(__dirname, '..', '..', '..', '..', 'static', 'pictures');
   private readonly pictureLimit = Number(process.env.DEFAULT_PICTURE_LIMIT) || 6;
 
   constructor() {
     this.imageService = new ImageService();
     this.userService = new UserService();
-    this.mongoDB = new MongoDatabase();
   }
 
   private parseQueryParam(defaultValue: number, num?: string): number {
@@ -53,8 +54,6 @@ export class GalleryService {
     const { uploadedByUser, skip, limit } = query;
 
     try {
-      await this.mongoDB.connect();
-
       if (uploadedByUser) {
         const user = await this.userService.getByEmail(email);
         return this.imageService.getByUserId(user._id, { skip, limit });
@@ -71,8 +70,6 @@ export class GalleryService {
 
     try {
       const metadata = await MetaDataService.getExifMetadata(picture.content);
-
-      await this.mongoDB.connect();
 
       await fs.writeFile(path.join(this.picturesPath, newPictureName), picture.content);
 
@@ -95,8 +92,6 @@ export class GalleryService {
           fsAbsolutePath: path.join(this.picturesPath, pictureName),
         };
       });
-
-      await this.mongoDB.connect();
 
       await Promise.all(
         picturesInfo.map(async (pictureInfo) => {

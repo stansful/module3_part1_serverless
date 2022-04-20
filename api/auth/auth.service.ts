@@ -6,17 +6,18 @@ import { TokenService } from '@services/token.service';
 import { UserService } from '@services/user.service';
 import { JwtPayload, RequestUser } from './auth.interfaces';
 
+const mongoDB = new MongoDatabase();
+mongoDB.connect();
+
 export class AuthService {
   private readonly hashingService: HashingService;
   private readonly tokenService: TokenService;
   private readonly userService: UserService;
-  private readonly mongoDB: MongoDatabase;
 
   constructor() {
     this.hashingService = new HashingService();
     this.tokenService = new TokenService();
     this.userService = new UserService();
-    this.mongoDB = new MongoDatabase();
   }
 
   public parseAndValidateIncomingBody(body?: string): RequestUser {
@@ -32,8 +33,6 @@ export class AuthService {
 
   public async signIn(candidate: RequestUser): Promise<JwtPayload> {
     try {
-      await this.mongoDB.connect();
-
       const user = await this.userService.getByEmail(candidate.email);
 
       await this.hashingService.verify(candidate.password, user.password);
@@ -46,8 +45,6 @@ export class AuthService {
 
   public async signUp(candidate: RequestUser): Promise<ResponseMessage> {
     try {
-      await this.mongoDB.connect();
-
       await this.userService.create(candidate);
 
       return { message: 'Created' };
@@ -72,8 +69,6 @@ export class AuthService {
     ];
 
     try {
-      await this.mongoDB.connect();
-
       await Promise.all(
         devUsers.map(async (devUser) => {
           return this.userService.create(devUser);
