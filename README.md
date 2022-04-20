@@ -1,3 +1,43 @@
+## Description
+
+- The main goal is to re-write api from express to serverless framework
+
+## Quick start:
+
+1. Install dependencies
+
+```
+npm install 
+```
+
+2. Create kms_key.yml in root directory, add following:
+
+```
+local: kms-super-secret-key
+```
+
+3. Deploy local
+
+```
+npm run deploy:local:auth
+```
+
+4. Send 2 get requests using postman, to create dev user and image entities
+
+```
+http://localhost:XXXX/auth/fill
+    &
+http://localhost:XXXX/gallery/fill
+```
+
+## Issues
+
+If you find any [issue](https://github.com/stansful/module3_part1_serverless/issues), please submit it.
+
+## Stay in touch
+
+* api Author - [Gak Filipp](https://t.me/stansful)
+
 # AWS + Serverless API for your application
 
 ## Project information
@@ -36,78 +76,81 @@ It is a skeleton for your AWS + Serverless applications.
 ## Deployment information
 
 1. Preparation
-   - Install `nvm`\
-     Linux, OSX: https://github.com/nvm-sh/nvm \
-     Windows: https://github.com/coreybutler/nvm-windows
-   - Install `Node.js` _Recommended For Most Users_ version (14.17.0 for now) using nvm \
-     Linux, OSX: https://github.com/nvm-sh/nvm#usage \
-     Windows: https://github.com/coreybutler/nvm-windows#usage
-     ```
-     nvm install 14.17.0
-     nvm use 14.17.0
-     ```
-   - Install `aws-cli` version 2 \
-     Linux: https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html \
-     Windows: https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-windows.html \
-     OSX: https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-mac.html
-   - Install `Serverless framework` globally via npm \
-     https://serverless.com/framework/docs/getting-started/
-     ```
-     npm install -g serverless
-     ```
-   - Create AWS user with at least programmatic access. It will be better to use a user with the Admin access. Download
-     user's credentials.\
-     Set up `AWS credentials` according to `Serverless framework` documentation. \
-     Name the profile as it named in the `env.yml -> PROFILE` field. \
-     https://serverless.com/framework/docs/providers/aws/cli-reference/config-credentials/
-     ```
-     serverless config credentials --provider aws --key ACCESS_KEY_ID --secret SECRET_ACCESS_KEY --profile PROFILE
-     ```
-   - Install `git` https://git-scm.com/downloads
-   - If the repository is private you should set up SSH key or use HTTPS for cloning it
-   - Clone the repository
-   - Install node_modules running the command in the root of the project
-     ```
-     npm i
-     ```
+
+- Install `nvm`\
+  Linux, OSX: https://github.com/nvm-sh/nvm \
+  Windows: https://github.com/coreybutler/nvm-windows
+- Install `Node.js` _Recommended For Most Users_ version (14.17.0 for now) using nvm \
+  Linux, OSX: https://github.com/nvm-sh/nvm#usage \
+  Windows: https://github.com/coreybutler/nvm-windows#usage
+  ```
+  nvm install 14.17.0
+  nvm use 14.17.0
+  ```
+- Install `aws-cli` version 2 \
+  Linux: https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html \
+  Windows: https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-windows.html \
+  OSX: https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-mac.html
+- Install `Serverless framework` globally via npm \
+  https://serverless.com/framework/docs/getting-started/
+  ```
+  npm install -g serverless
+  ```
+- Create AWS user with at least programmatic access. It will be better to use a user with the Admin access. Download
+  user's credentials.\
+  Set up `AWS credentials` according to `Serverless framework` documentation. \
+  Name the profile as it named in the `env.yml -> PROFILE` field. \
+  https://serverless.com/framework/docs/providers/aws/cli-reference/config-credentials/
+  ```
+  serverless config credentials --provider aws --key ACCESS_KEY_ID --secret SECRET_ACCESS_KEY --profile PROFILE
+  ```
+- Install `git` https://git-scm.com/downloads
+- If the repository is private you should set up SSH key or use HTTPS for cloning it
+- Clone the repository
+- Install node_modules running the command in the root of the project
+  ```
+  npm i
+  ```
+
 2. Set up environment variables
 
-   - Open env.yml file, you can see stage sections here. For example, `local`, `dev`, and `prod`. If you deploy on
-     production use `prod` section and do not touch other sections.
-   - Input your AWS region, for example, `us-east-1`
-   - Go to AWS Console `Key Management Service` and create Symmetric key in your region
-   - In the root folder of the project create kms_key.yml file and copy your key (Key ID) here like
-     ```
-     ${stage}: your_key_here
-     ```
-     Where stage can be `local`, `dev`, `test` and `prod`
-   - You can add any environment variables. If you need to secure them, encrypt them.
-   - Copy the value of variable and run the command in the root of the project
-     ```
-     sls env --attribute VARIABLE_NAME --value variable_value --stage your_stage --encrypt
-     ```
-   - If you use some common variables, like
+- Open env.yml file, you can see stage sections here. For example, `local`, `dev`, and `prod`. If you deploy on
+  production use `prod` section and do not touch other sections.
+- Input your AWS region, for example, `us-east-1`
+- Go to AWS Console `Key Management Service` and create Symmetric key in your region
+- In the root folder of the project create kms_key.yml file and copy your key (Key ID) here like
+  ```
+  ${stage}: your_key_here
+  ```
+  Where stage can be `local`, `dev`, `test` and `prod`
+- You can add any environment variables. If you need to secure them, encrypt them.
+- Copy the value of variable and run the command in the root of the project
+  ```
+  sls env --attribute VARIABLE_NAME --value variable_value --stage your_stage --encrypt
+  ```
+- If you use some common variables, like
 
-     ```yaml
-     common: &common
-       REGION: us-east-1
-       PROFILE: default
-       CLIENT: FLO
+  ```yaml
+  common: &common
+    REGION: us-east-1
+    PROFILE: default
+    CLIENT: FLO
 
-     local:
-       <<: *common
-     ```
+  local:
+    <<: *common
+  ```
 
-     The plugin will add these variables to all stages, but we don't want it. So after encrypting, copy encrypted value
-     of the new variable, revert changes and paste it to the right place.
+  The plugin will add these variables to all stages, but we don't want it. So after encrypting, copy encrypted value
+  of the new variable, revert changes and paste it to the right place.
 
-   - You are ready for deploying
+- You are ready for deploying
 
 3. Deploy
-   - Run the command in the root of the project
-     ```
-     npm run deploy:your_stage
-     ```
+
+- Run the command in the root of the project
+  ```
+  npm run deploy:your_stage
+  ```
 
 ### The project contains:
 
@@ -136,7 +179,8 @@ It is a skeleton for your AWS + Serverless applications.
 - bin - Executable files (third party libraries that can be used inside a Lambda function)
 - config - Folder for configurations
   - serverless - TypeScript files for the description of Serverless resources
-    - parts - TypeScript files for the description of Lambda function with their triggers and resources like S3 buckets, SQS, DynamoDB tables, etc.
+    - parts - TypeScript files for the description of Lambda function with their triggers and resources like S3 buckets,
+      SQS, DynamoDB tables, etc.
       - examples.ts - TypeScript file for description Lambda functions with their triggers for one feature
       - feature.ts - TypeScript file for description Lambda functions with their triggers for one feature
       - rest-api-cors.ts - Helper for setting up CORS for REST API
@@ -185,13 +229,16 @@ It is a skeleton for your AWS + Serverless applications.
 
 ### Troubleshooting
 
-- If you see the error `Not authorized. Analyzing this project requires authentication. Please provide a user token in sonar.login or other credentials in sonar.login and sonar.password.`,
+- If you see the
+  error `Not authorized. Analyzing this project requires authentication. Please provide a user token in sonar.login or other credentials in sonar.login and sonar.password.`
+  ,
   go to the `Administration` menu in the header -> `Security` -> scroll down and turn off `Force user authentication`.
   Do it for local usage only!
 
 ## How to add env variable
 
-In project used https://github.com/org-redtea/serverless-env-generator that fork of https://github.com/DieProduktMacher/serverless-env-generator.
+In project used https://github.com/org-redtea/serverless-env-generator that fork
+of https://github.com/DieProduktMacher/serverless-env-generator.
 
 Some caveats:
 
@@ -330,11 +377,16 @@ prod:
 ### What type of API Gateway event to use for lambda: REST API or HTTP API?
 
 In most cases HTTP API is the best and cheapest choice. So, use it.
-In other cases you should check [this page](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-vs-rest.html) to find out what to choose. There are a lot of differences between HTTP API and REST API.
+In other cases you should
+check [this page](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-vs-rest.html) to find out what
+to choose. There are a lot of differences between HTTP API and REST API.
 
-- About REST API event in serverless docs. [Link](https://www.serverless.com/framework/docs/providers/aws/events/apigateway/).
-- About HTTP API event in serverless docs. [Link](https://www.serverless.com/framework/docs/providers/aws/events/http-api/)
+- About REST API event in serverless
+  docs. [Link](https://www.serverless.com/framework/docs/providers/aws/events/apigateway/).
+- About HTTP API event in serverless
+  docs. [Link](https://www.serverless.com/framework/docs/providers/aws/events/http-api/)
 
 ### "Serverless Offline only supports retrieving JWT from the headers (undefined)" error when trying to start offline
 
-Probably, you use lambda authorizer for HTTP API. Serverless offline plugin does not support for that yet. Check the plugin repo for any updates.
+Probably, you use lambda authorizer for HTTP API. Serverless offline plugin does not support for that yet. Check the
+plugin repo for any updates.

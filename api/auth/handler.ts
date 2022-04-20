@@ -1,73 +1,72 @@
-// Remove example
-
-import { log } from '@helper/logger';
 import {
-  APIGatewayAuthorizerSimpleResult,
-  APIGatewayRequestAuthorizerHttpApiPayloadV2Event,
-} from '@interfaces/api-gateway-authorizer.interface';
-import { APIGatewayAuthorizerResult, APIGatewayTokenAuthorizerWithContextHandler } from 'aws-lambda';
-import { Handler } from 'aws-lambda/handler';
+  APIGatewayAuthorizerResult,
+  APIGatewayProxyHandlerV2,
+  APIGatewayTokenAuthorizerWithContextHandler,
+} from 'aws-lambda';
+import { errorHandler } from '@helper/http-api/error-handler';
+import { createResponse } from '@helper/http-api/response';
+import { log } from '@helper/logger';
+import { AuthManager } from './auth.manager';
 
-const UNAUTHORIZED = new Error('Unauthorized');
+const authManager = new AuthManager();
 
-// Authorizer with simple response
-// See: https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-lambda-authorizer.html#http-api-lambda-authorizer.v2
-export const httpApiSimple: Handler<
-  APIGatewayRequestAuthorizerHttpApiPayloadV2Event,
-  APIGatewayAuthorizerSimpleResult
-> = async (event) => {
+export const signIn: APIGatewayProxyHandlerV2 = async (event, context) => {
   log(event);
 
-  const token = event.identitySource?.[0];
+  try {
+    context.callbackWaitsForEmptyEventLoop = false;
 
-  if (token === 'error') {
-    throw new Error('Internal server error');
+    const token = await authManager.signIn(event.body);
+
+    return createResponse(200, { token });
+  } catch (error) {
+    return errorHandler(error);
   }
-
-  if (token !== 'token') {
-    return {
-      isAuthorized: false,
-    };
-  }
-
-  return {
-    isAuthorized: true,
-    context: {
-      var1: 'v1',
-    },
-  };
 };
 
-// Authorizer with policy response (compatible with REST API)
-// See: https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-lambda-authorizer.html#http-api-lambda-authorizer.v2
-export const httpApiPolicy: APIGatewayTokenAuthorizerWithContextHandler<Record<string, any>> = async (event) => {
+export const signUp: APIGatewayProxyHandlerV2 = async (event, context) => {
   log(event);
 
-  if (event.authorizationToken === 'error') {
-    throw new Error('Internal server error');
-  }
+  try {
+    context.callbackWaitsForEmptyEventLoop = false;
 
-  if (event.authorizationToken !== 'token') {
-    throw UNAUTHORIZED;
-  }
+    const response = await authManager.signUp(event.body);
 
-  return generatePolicy('user', 'Allow', '*', {});
+    return createResponse(201, response);
+  } catch (error) {
+    return errorHandler(error);
+  }
 };
 
-// REST API authorizer
-// See: https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-lambda-authorizer-output.html
-export const restApi: APIGatewayTokenAuthorizerWithContextHandler<Record<string, any>> = async (event) => {
+export const uploadDevUsers: APIGatewayProxyHandlerV2 = async (event, context) => {
   log(event);
 
-  if (event.authorizationToken === 'error') {
-    throw new Error('Internal server error');
-  }
+  try {
+    context.callbackWaitsForEmptyEventLoop = false;
 
-  if (event.authorizationToken !== 'token') {
-    throw UNAUTHORIZED;
-  }
+    const response = await authManager.uploadDevUsers();
 
-  return generatePolicy('user', 'Allow', '*', {});
+    return createResponse(201, response);
+  } catch (error) {
+    return errorHandler(error);
+  }
+};
+
+export const authenticate: APIGatewayTokenAuthorizerWithContextHandler<Record<string, any>> = async (
+  event,
+  context
+) => {
+  log(event);
+
+  try {
+    context.callbackWaitsForEmptyEventLoop = false;
+
+    const candidate = await authManager.authenticate(event.authorizationToken);
+
+    return generatePolicy('user', 'Allow', '*', { email: candidate.email });
+  } catch (error) {
+    return generatePolicy('user', 'Deny', '*', {});
+  }
 };
 
 export function generatePolicy<C extends APIGatewayAuthorizerResult['context']>(
